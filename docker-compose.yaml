@@ -1,0 +1,65 @@
+
+services:
+  # frontend Mobile
+  react-native-dev:
+    build: 
+      context: ./App
+    environment:
+      TZ: America/Guayaquil
+      DISPLAY: $DISPLAY
+      ADB_ENDPOINT: 192.168.0.104:55555
+      API_BASE_URL: http://django:8080/api/
+      DEFAULT_USERNAME: walecel
+      DEFAULT_PASSWORD: p4s5w0rD
+    entrypoint: bash ./boot.sh
+    user: "1000:1000"
+    volumes:
+      - ./App:/Project
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./App/Data:/home/AndroidStudio
+      - ./Common:/Common
+    working_dir: /Project
+
+  # Frontend Web
+  web:
+    entrypoint: yarn start
+    environment:
+      REACT_APP_API_BASE_URL: http://django:8080/api/
+    hostname: web
+    image: node:20
+    #restart: unless-stopped
+    volumes:
+      - ./Web:/App
+      - ./Common:/Common
+    working_dir: /App
+  
+  # Backend
+  django:
+    build:
+      context: ./Backend
+      args:
+        UID: 1000
+        GID: 1000
+      dockerfile: django.Dockerfile
+    depends_on:
+      - postgres
+    hostname: django
+    user: "1000:1000"
+    volumes:
+      - ./Backend:/App
+    working_dir: /App
+  
+  postgres:
+    build:
+      context: ./Backend
+      args:
+        UID: 1000
+        GID: 1000
+      dockerfile: postgres.Dockerfile
+    environment:
+      POSTGRES_PASSWORD: mysecretpassword
+    hostname: postgres
+    user: "1000:1000"
+    #restart: unless-stopped
+    volumes:
+      - ./Backend/Data/postgresql:/var/lib/postgresql/data
