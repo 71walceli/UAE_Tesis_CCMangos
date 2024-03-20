@@ -12,10 +12,30 @@ services:
       DEFAULT_USERNAME: walecel
       DEFAULT_PASSWORD: p4s5w0rD
     entrypoint: bash ./boot.sh
+    hostname: react-native-dev
     user: "1000:1000"
     volumes:
       - ./App:/Project
       - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./App/Data:/home/AndroidStudio
+      - ./Common:/Common
+    working_dir: /Project
+  react-native-production-build:
+    build: 
+      context: ./App
+    environment:
+      TZ: America/Guayaquil
+      ADB_ENDPOINT: 192.168.0.104:55555
+      API_BASE_URL: https://api.71walceli.beauty/ccmangos/api
+      DEFAULT_USERNAME: walecel
+      DEFAULT_PASSWORD: p4s5w0rD
+      KEY_PASSPHRASE: p4s5w0rD
+      APP_ID_SUFFIX: staging
+      #CLEAN: "true"
+    entrypoint: bash ./build.sh
+    user: "1000:1000"
+    volumes:
+      - ./App:/Project
       - ./App/Data:/home/AndroidStudio
       - ./Common:/Common
     working_dir: /Project
@@ -63,3 +83,18 @@ services:
     #restart: unless-stopped
     volumes:
       - ./Backend/Data/postgresql:/var/lib/postgresql/data
+
+  # Machine Learning Core
+  predictive-model-training:
+    build:
+      context: ./PredictiveModel
+      args:
+        UID: 1000
+        GID: 1000
+    shm_size: 8gb
+    hostname: predictive-model-training
+    user: "1000:1000"
+    volumes:
+      - ./PredictiveModel/Config:/Config
+      - ./PredictiveModel/Notebooks:/Notebooks
+      - ./PredictiveModel/Content:/content
