@@ -1,0 +1,9 @@
+[submodule "App"]
+	path = App
+	url = git@github.com:71walceli/Tesis_CCMangos_App.git
+[submodule "Backend"]
+	path = Backend
+	url = git@github.com:71walceli/Tesis_CCMangos_API.git
+[submodule "Web"]
+	path = Web
+	url = git@github.com:71walceli/Tesis_CCMangos_Web.git
