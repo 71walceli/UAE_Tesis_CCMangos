@@ -11,6 +11,7 @@ services:
       API_BASE_URL: http://django:8080/api/
       DEFAULT_USERNAME: walecel
       DEFAULT_PASSWORD: p4s5w0rD
+      MOCKED_LOCATION: 2.1260429,79.9876802
     entrypoint: bash ./boot.sh
     hostname: react-native-dev
     user: "1000:1000"
@@ -67,6 +68,7 @@ services:
     user: "1000:1000"
     volumes:
       - ./Backend:/App
+      - ./Backend/Data/uploads:/Uploads
     working_dir: /App
   
   postgres:
