@@ -7,13 +7,17 @@ services:
     environment:
       TZ: America/Guayaquil
       DISPLAY: $DISPLAY
-      ADB_ENDPOINT: 192.168.0.104:55555
-      API_BASE_URL: http://django:8080/api/
+      ADB_ENDPOINT: 192.168.67.5:55555
+      API_BASE_URL: http://192.168.67.245:8080/api/
       DEFAULT_USERNAME: walecel
-      DEFAULT_PASSWORD: p4s5w0rD
-      MOCKED_LOCATION: 2.1260429,79.9876802
+      DEFAULT_PASSWORD: p4s$w0rD
+      #MOCKED_LOCATION: 2.1260429,79.9876802
     entrypoint: bash ./boot.sh
     hostname: react-native-dev
+    networks:
+      tesis-vpn:
+        ipv4_address: 192.168.67.243
+      #backend:
     user: "1000:1000"
     volumes:
       - ./App:/Project
@@ -26,7 +30,7 @@ services:
       context: ./App
     environment:
       TZ: America/Guayaquil
-      ADB_ENDPOINT: 192.168.0.104:55555
+      ADB_ENDPOINT: 192.168.147.2:55555
       API_BASE_URL: https://api.71walceli.beauty/ccmangos/api
       DEFAULT_USERNAME: walecel
       DEFAULT_PASSWORD: p4s5w0rD
@@ -45,10 +49,13 @@ services:
   web:
     entrypoint: yarn start
     environment:
-      REACT_APP_API_BASE_URL: http://django:8080/api/
+      REACT_APP_API_BASE_URL: http://192.168.67.245:8080/api/
     hostname: web
+    networks:
+      tesis-vpn:
+        ipv4_address: 192.168.67.244
+      #backend:
     image: node:20
-    #restart: unless-stopped
     volumes:
       - ./Web:/App
       - ./Common:/Common
@@ -65,6 +72,10 @@ services:
     depends_on:
       - postgres
     hostname: django
+    networks:
+      tesis-vpn:
+        ipv4_address: 192.168.67.245
+      backend:
     user: "1000:1000"
     volumes:
       - ./Backend:/App
@@ -81,6 +92,8 @@ services:
     environment:
       POSTGRES_PASSWORD: mysecretpassword
     hostname: postgres
+    networks:
+      backend:
     user: "1000:1000"
     #restart: unless-stopped
     volumes:
@@ -93,10 +106,21 @@ services:
       args:
         UID: 1000
         GID: 1000
-    shm_size: 8gb
     hostname: predictive-model-training
+    networks:
+      tesis-vpn:
+        ipv4_address: 192.168.67.246
+      #backend:
+    shm_size: 8gb
     user: "1000:1000"
     volumes:
       - ./PredictiveModel/Config:/Config
       - ./PredictiveModel/Notebooks:/Notebooks
       - ./PredictiveModel/Content:/content
+networks:
+  tesis-vpn:
+    ipam: 
+      config:
+        - subnet: 192.168.67.240/29
+          gateway: 192.168.67.241
+  backend:
