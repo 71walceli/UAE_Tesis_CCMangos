@@ -11,7 +11,6 @@ services:
       API_BASE_URL: http://192.168.67.245:8080/api/
       DEFAULT_USERNAME: walecel
       DEFAULT_PASSWORD: p4s$w0rD
-      #MOCKED_LOCATION: 2.1260429,79.9876802
     entrypoint: bash ./boot.sh
     hostname: react-native-dev
     networks:
@@ -47,19 +46,21 @@ services:
 
   # Frontend Web
   web:
-    entrypoint: yarn start
+    entrypoint: bash boot.sh
     environment:
       REACT_APP_API_BASE_URL: http://192.168.67.245:8080/api/
     hostname: web
+    image: node:20
     networks:
       tesis-vpn:
         ipv4_address: 192.168.67.244
       #backend:
-    image: node:20
+    user: "1000:1000"
     volumes:
       - ./Web:/App
       - ./Common:/Common
     working_dir: /App
+    restart: unless-stopped
   
   # Backend
   django:
@@ -76,10 +77,34 @@ services:
       tesis-vpn:
         ipv4_address: 192.168.67.245
       backend:
+    restart: unless-stopped
     user: "1000:1000"
     volumes:
       - ./Backend:/App
       - ./Backend/Data/uploads:/Uploads
+    working_dir: /App
+  
+  predictive-api:
+    build:
+      context: ./PredictiveAPI/
+      args:
+        UID: 1000
+        GID: 1000
+      dockerfile: fastAPI.Dockerfile
+    env_file:
+      - ./PredictiveAPI/.env
+    hostname: predictive-api
+    networks:
+      tesis-vpn:
+        ipv4_address: 192.168.67.242
+      backend:
+    restart: unless-stopped
+    stop_grace_period: 1s
+    user: "1000:1000"
+    volumes:
+      - ./PredictiveAPI/App:/App
+      - ./PredictiveAPI/Data:/Data
+      - ./PredictiveModel/Notebooks:/Lib
     working_dir: /App
   
   postgres:
@@ -94,6 +119,7 @@ services:
     hostname: postgres
     networks:
       backend:
+    restart: unless-stopped
     user: "1000:1000"
     #restart: unless-stopped
     volumes:
@@ -111,6 +137,7 @@ services:
       tesis-vpn:
         ipv4_address: 192.168.67.246
       #backend:
+    restart: unless-stopped
     shm_size: 8gb
     user: "1000:1000"
     volumes:
@@ -119,6 +146,9 @@ services:
       - ./PredictiveModel/Content:/content
 networks:
   tesis-vpn:
+    driver: bridge
+    driver_opts: 
+      com.docker.network.driver.mtu: 1400
     ipam: 
       config:
         - subnet: 192.168.67.240/29
