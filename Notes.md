@@ -2,16 +2,14 @@
 - Web Frontend
     - [ ] Replace `<a />` links with `react-router` `<Link />`
 - Arreglos
-    - [ ] Cosechas no guardan
-    - [ ] Árboles
-    - [ ] Agregar más campos
-    - [ ] Áreas
-        - [ ] Agregar mapa de área
-            - [ ] Adición manual de coordenadas poligonales
-        - [ ] Agregar tamaño de árae
-        - [ ] Permitir ingreso de coordenadas
-    - [ ] Lotes
-        - [ ] Ingresar variedades
-    - [ ] Plantas
-        - [ ] Coordenadas
+    - [x] Cosechas no guardan
+    - [x] Áreas
+        - [x] Agregar mapa de área
+        - [x] Agregar tamaño de árae
+    - [x] Lotes
+        - [x] Ingresar variedades
+    - [x] Plantas
+        - [x] Coordenadas en mapa
+- [ ] Para las entidades dependientes, tener en cuenta las siguientes columnas
+    - [ ] 
 

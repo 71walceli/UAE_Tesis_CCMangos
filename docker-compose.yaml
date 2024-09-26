@@ -7,7 +7,7 @@ services:
     environment:
       TZ: America/Guayaquil
       DISPLAY: $DISPLAY
-      ADB_ENDPOINT: 192.168.67.5:55555
+      ADB_ENDPOINTS: 192.168.0.104:55554,192.168.67.5:55554
       API_BASE_URL: http://192.168.67.245:8080/api/
       DEFAULT_USERNAME: walecel
       DEFAULT_PASSWORD: p4s$w0rD
@@ -16,7 +16,7 @@ services:
     networks:
       tesis-vpn:
         ipv4_address: 192.168.67.243
-      #backend:
+    stop_grace_period: 1s
     user: "1000:1000"
     volumes:
       - ./App:/Project
@@ -29,14 +29,15 @@ services:
       context: ./App
     environment:
       TZ: America/Guayaquil
-      ADB_ENDPOINT: 192.168.147.2:55555
-      API_BASE_URL: https://api.71walceli.beauty/ccmangos/api
-      DEFAULT_USERNAME: walecel
-      DEFAULT_PASSWORD: p4s5w0rD
+      ADB_ENDPOINT: 192.168.0.104:55554
+      API_BASE_URL: https://ccmangos.71walceli.beauty/api
+      #DEFAULT_USERNAME: walecel
+      #DEFAULT_PASSWORD: p4s5w0rD
       KEY_PASSPHRASE: p4s5w0rD
       APP_ID_SUFFIX: staging
       #CLEAN: "true"
     entrypoint: bash ./build.sh
+    stop_grace_period: 1s
     user: "1000:1000"
     volumes:
       - ./App:/Project
@@ -54,7 +55,7 @@ services:
     networks:
       tesis-vpn:
         ipv4_address: 192.168.67.244
-      #backend:
+    stop_grace_period: 1s
     user: "1000:1000"
     volumes:
       - ./Web:/App
@@ -70,6 +71,9 @@ services:
         UID: 1000
         GID: 1000
       dockerfile: django.Dockerfile
+    environment:
+      DEBUG: "True"
+      PYTHONUNBUFFERED: "1"
     depends_on:
       - postgres
     hostname: django
@@ -78,12 +82,13 @@ services:
         ipv4_address: 192.168.67.245
       backend:
     restart: unless-stopped
+    stop_grace_period: 3s
     user: "1000:1000"
     volumes:
       - ./Backend:/App
       - ./Backend/Data/uploads:/Uploads
     working_dir: /App
-  
+    
   predictive-api:
     build:
       context: ./PredictiveAPI/
@@ -91,6 +96,8 @@ services:
         UID: 1000
         GID: 1000
       dockerfile: fastAPI.Dockerfile
+    depends_on:
+      - django
     env_file:
       - ./PredictiveAPI/.env
     hostname: predictive-api
@@ -116,12 +123,13 @@ services:
       dockerfile: postgres.Dockerfile
     environment:
       POSTGRES_PASSWORD: mysecretpassword
+    image: ghcr.io/71walceli/uae_tesis_ccmangos_postgres:1.1.0
     hostname: postgres
     networks:
       backend:
     restart: unless-stopped
+    stop_grace_period: 10s
     user: "1000:1000"
-    #restart: unless-stopped
     volumes:
       - ./Backend/Data/postgresql:/var/lib/postgresql/data
 
@@ -139,6 +147,7 @@ services:
       #backend:
     restart: unless-stopped
     shm_size: 8gb
+    stop_grace_period: 1s
     user: "1000:1000"
     volumes:
       - ./PredictiveModel/Config:/Config

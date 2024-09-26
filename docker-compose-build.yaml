@@ -1,0 +1,88 @@
+
+services:
+  # Frontend Web
+  web-production-build:
+    build:
+      args:
+        REACT_APP_API_BASE_URL: https://ccmangos.71walceli.beauty/api/
+        UID: 1000
+        GID: 1000
+      context: .
+      dockerfile: ./Web/Dockerfile
+    hostname: web.ccmangos.tesis.uae.internal
+    image: ghcr.io/71walceli/uae_tesis_ccmangos_web:1.1.0
+    ports: 
+      - 127.0.0.1:38002:80/tcp
+    restart: unless-stopped
+    stop_grace_period: 1s
+    
+  # Backend
+  django-production:
+    build:
+      context: ./Backend
+      args:
+        UID: 1000
+        GID: 1000
+      dockerfile: django.prod.Dockerfile
+    depends_on:
+      - postgres
+    environment:
+      PYTHONUNBUFFERED: "1"
+    hostname: api.ccmangos.tesis.uae.internal
+    image: ghcr.io/71walceli/uae_tesis_ccmangos_api:1.1.0
+    networks:
+      backend:
+    ports: 
+      - 127.0.0.1:38001:8080/tcp
+    restart: unless-stopped
+    stop_grace_period: 3s
+    user: "1000:1000"
+    volumes:
+      - ./Backend/Data/uploads:/Uploads
+  
+  postgres:
+    build:
+      context: ./Backend
+      args:
+        UID: 1000
+        GID: 1000
+      dockerfile: postgres.Dockerfile
+    environment:
+      POSTGRES_PASSWORD: mysecretpassword
+    image: ghcr.io/71walceli/uae_tesis_ccmangos_postgres:1.1.0
+    hostname: postgres
+    networks:
+      backend:
+    restart: unless-stopped
+    stop_grace_period: 10s
+    user: "1000:1000"
+    volumes:
+      - ./Backend/Data/postgresql:/var/lib/postgresql/data
+
+  predictive-api-production:
+    build:
+      context: .
+      args:
+        UID: 1000
+        GID: 1000
+      dockerfile: ./PredictiveAPI/PredictiveApi.prod.Dockerfile
+    depends_on:
+      - django-production
+    env_file:
+      - ./PredictiveAPI/.env.prod
+    hostname: predictive-api
+    image: ghcr.io/71walceli/uae_tesis_ccmangos_predictive-api:1.1.0
+    networks:
+      backend:
+    restart: unless-stopped
+    stop_grace_period: 1s
+    user: "1000:1000"
+    volumes:
+      - predictive-api:/Data
+
+networks:
+  backend:
+
+volumes:
+  predictive-api:
+
